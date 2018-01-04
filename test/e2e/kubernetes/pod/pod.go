@@ -282,6 +282,7 @@ func (p *Pod) CheckLinuxOutboundConnection(sleep, duration time.Duration) (bool,
 
 // CheckWindowsOutboundConnection will keep retrying the check if an error is received until the timeout occurs or it passes. This helps us when DNS may not be available for some time after a pod starts.
 func (p *Pod) CheckWindowsOutboundConnection(sleep, duration time.Duration) (bool, error) {
+	log.Printf("Checking Windows Outbound Connection\n")
 	exp, err := regexp.Compile("(StatusCode\\s*:\\s*200)")
 	if err != nil {
 		log.Printf("Error while trying to create regex for windows outbound check:%s\n", err)
@@ -299,6 +300,7 @@ func (p *Pod) CheckWindowsOutboundConnection(sleep, duration time.Duration) (boo
 			default:
 				out, err := p.Exec("--", "powershell", "iwr", "-UseBasicParsing", "-TimeoutSec", "60", "www.bing.com")
 				if err == nil {
+					log.Printf("Command returned %s\n", string(out))
 					matched := exp.MatchString(string(out))
 					if matched {
 						readyCh <- true
@@ -325,11 +327,13 @@ func (p *Pod) CheckWindowsOutboundConnection(sleep, duration time.Duration) (boo
 // ValidateHostPort will attempt to run curl against the POD's hostIP and hostPort
 func (p *Pod) ValidateHostPort(check string, attempts int, sleep time.Duration, master, sshKeyPath string) bool {
 	hostIP := p.Status.HostIP
+	log.Printf("Validating HostPort..... hostIP is %s.\n", hostIP)
 	if len(p.Spec.Containers) == 0 || len(p.Spec.Containers[0].Ports) == 0 {
 		log.Printf("Unexpectd POD container spec: %v. Should have hostPort.\n", p.Spec)
 		return false
 	}
 	hostPort := p.Spec.Containers[0].Ports[0].HostPort
+	log.Printf("hostPort is %d.\n", hostPort)
 
 	url := fmt.Sprintf("http://%s:%d", hostIP, hostPort)
 	curlCMD := fmt.Sprintf("curl --max-time 60 %s", url)
@@ -337,6 +341,7 @@ func (p *Pod) ValidateHostPort(check string, attempts int, sleep time.Duration, 
 	for i := 0; i < attempts; i++ {
 		resp, err := exec.Command("ssh", "-i", sshKeyPath, "-o", "ConnectTimeout=10", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", master, curlCMD).CombinedOutput()
 		if err == nil {
+			log.Printf("Compating resp %s and expected %s.\n", string(resp), check)
 			matched, _ := regexp.MatchString(check, string(resp))
 			if matched == true {
 				return true
