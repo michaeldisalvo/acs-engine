@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -53,12 +54,14 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 	Describe("regardless of agent pool type", func() {
 
 		It("should have have the appropriate node count", func() {
+			log.Printf("It should have have the appropriate node count\n")
 			nodeList, err := node.Get()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(len(nodeList.Nodes)).To(Equal(eng.NodeCount()))
 		})
 
 		It("should be running the expected version", func() {
+			log.Printf("It should be running the expected version\n")
 			version, err := node.Version()
 			Expect(err).NotTo(HaveOccurred())
 
@@ -70,60 +73,70 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 		})
 
 		It("should have kube-dns running", func() {
+			log.Printf("It should have kube-dns running\n")
 			running, err := pod.WaitOnReady("kube-dns", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have kube-dashboard running", func() {
+			log.Printf("It should have kube-dashboard running\n")
 			running, err := pod.WaitOnReady("kubernetes-dashboard", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have kube-proxy running", func() {
+			log.Printf("It should have kube-proxy running\n")
 			running, err := pod.WaitOnReady("kube-proxy", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have heapster running", func() {
+			log.Printf("It should have heapster running\n")
 			running, err := pod.WaitOnReady("heapster", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have kube-addon-manager running", func() {
+			log.Printf("It should have kube-addon-manager running\n")
 			running, err := pod.WaitOnReady("kube-addon-manager", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have kube-apiserver running", func() {
+			log.Printf("It should have kube-apiserver running\n")
 			running, err := pod.WaitOnReady("kube-apiserver", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have kube-controller-manager running", func() {
+			log.Printf("It should have kube-controller-manager running\n")
 			running, err := pod.WaitOnReady("kube-controller-manager", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have kube-scheduler running", func() {
+			log.Printf("It should have kube-scheduler running\n")
 			running, err := pod.WaitOnReady("kube-scheduler", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should have tiller running", func() {
+			log.Printf("It should have tiller running\n")
 			running, err := pod.WaitOnReady("tiller", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
 		})
 
 		It("should be able to access the dashboard from each node", func() {
+			log.Printf("It should be able to access the dashboard from each node\n")
 			running, err := pod.WaitOnReady("kubernetes-dashboard", "kube-system", 3, 30*time.Second, cfg.Timeout)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(running).To(Equal(true))
@@ -159,6 +172,7 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 
 	Describe("with a linux agent pool", func() {
 		It("should be able to deploy an nginx service", func() {
+			log.Printf("It should be able to deploy an nginx service\n")
 			if eng.HasLinuxAgents() {
 				r := rand.New(rand.NewSource(time.Now().UnixNano()))
 				deploymentName := fmt.Sprintf("nginx-%s-%v", cfg.Name, r.Intn(99999))
@@ -197,6 +211,7 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 
 	Describe("with a windows agent pool", func() {
 		It("should be able to deploy an iis webserver", func() {
+			log.Printf("It should be able to deploy an iis webserver\n")
 			if eng.HasWindowsAgents() {
 				r := rand.New(rand.NewSource(time.Now().UnixNano()))
 				deploymentName := fmt.Sprintf("iis-%s-%v", cfg.Name, r.Intn(99999))
@@ -236,6 +251,7 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 		})
 
 		It("should be able to reach hostport in an iis webserver", func() {
+			log.Printf("It should be able to reach hostport in an iis webserver\n")
 			if eng.HasWindowsAgents() {
 				r := rand.New(rand.NewSource(time.Now().UnixNano()))
 				hostport := 8123
@@ -269,6 +285,7 @@ var _ = Describe("Azure Container Cluster using the Kubernetes Orchestrator", fu
 		})
 
 		It("should be able to attach azure file", func() {
+			log.Printf("It should be able to attach azure file\n")
 			if eng.HasWindowsAgents() {
 				if eng.OrchestratorVersion1Dot8AndUp() {
 					storageclassName := "azurefile" // should be the same as in storageclass-azurefile.yaml
