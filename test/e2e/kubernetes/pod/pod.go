@@ -341,12 +341,13 @@ func (p *Pod) ValidateHostPort(check string, attempts int, sleep time.Duration, 
 	for i := 0; i < attempts; i++ {
 		resp, err := exec.Command("ssh", "-i", sshKeyPath, "-o", "ConnectTimeout=10", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", master, curlCMD).CombinedOutput()
 		if err == nil {
-			log.Printf("Compating resp %s and expected %s.\n", string(resp), check)
+			log.Printf("Comparing resp %s and expected %s.\n", string(resp), check)
 			matched, _ := regexp.MatchString(check, string(resp))
 			if matched == true {
 				return true
 			}
 		}
+		log.Printf("curl returned error %s.\n", err)
 	}
 	return false
 }
